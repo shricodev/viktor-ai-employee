@@ -1,0 +1,23 @@
+{
+  "name": "viktor",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.34.2",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "dev": "turbo run dev --parallel",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "lint": "biome check .",
+    "format": "biome check --write ."
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.15",
+    "@types/node": "^22.18.0",
+    "turbo": "^2.11.9",
+    "typescript": "^5.9.3",
+    "vitest": "^5.0.5"
+  }
+}
