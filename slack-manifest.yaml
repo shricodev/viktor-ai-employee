@@ -1,0 +1,56 @@
+# Replace https://viktor.example.com with your PUBLIC_URL before creating the app.
+display_information:
+  name: Viktor
+  description: Your AI employee. Connects to your tools and gets work done.
+  background_color: "#1d1d1f"
+features:
+  app_home:
+    home_tab_enabled: true
+    messages_tab_enabled: true
+    messages_tab_read_only_enabled: false
+  bot_user:
+    display_name: Viktor
+    always_online: true
+oauth_config:
+  redirect_urls:
+    - https://viktor.example.com/slack/oauth_redirect
+  scopes:
+    bot:
+      - app_mentions:read
+      - assistant:write
+      - channels:history
+      - channels:join
+      - channels:read
+      - chat:write
+      - files:read
+      - files:write
+      - groups:history
+      - groups:read
+      - im:history
+      - im:read
+      - im:write
+      - mpim:history
+      - reactions:read
+      - reactions:write
+      - team:read
+      - users:read
+      - users:read.email
+settings:
+  event_subscriptions:
+    request_url: https://viktor.example.com/slack/events
+    bot_events:
+      - app_home_opened
+      - app_mention
+      - app_uninstalled
+      - member_joined_channel
+      - message.channels
+      - message.groups
+      - message.im
+      - message.mpim
+      - tokens_revoked
+  interactivity:
+    is_enabled: true
+    request_url: https://viktor.example.com/slack/events
+  org_deploy_enabled: false
+  socket_mode_enabled: false
+  token_rotation_enabled: false
