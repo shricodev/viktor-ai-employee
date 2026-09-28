@@ -95,6 +95,18 @@ importers:
         specifier: ^5.8.0
         version: 5.11.1
 
+  packages/slack:
+    dependencies:
+      '@slack/web-api':
+        specifier: ^8.2.0
+        version: 8.2.0
+      '@viktor/config':
+        specifier: workspace:*
+        version: link:../config
+      '@viktor/db':
+        specifier: workspace:*
+        version: link:../db
+
 packages:
 
   '@anthropic-ai/claude-agent-sdk-darwin-arm64@0.3.302':

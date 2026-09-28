@@ -1,0 +1,16 @@
+{
+  "name": "@viktor/slack",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": { ".": "./src/index.ts" },
+  "scripts": {
+    "typecheck": "tsc -p .",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@slack/web-api": "^8.2.0",
+    "@viktor/config": "workspace:*",
+    "@viktor/db": "workspace:*"
+  }
+}
