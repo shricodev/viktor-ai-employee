@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
 import {
+  bigserial,
   index,
   integer,
   jsonb,
@@ -51,6 +52,7 @@ export const threads = pgTable(
     channelId: text().notNull(),
     threadTs: text().notNull(),
     sessionId: text(),
+    totalCostUsd: numeric({ precision: 12, scale: 6, mode: "number" }).notNull().default(0),
     ...timestamps,
   },
   (t) => [uniqueIndex().on(t.workspaceId, t.channelId, t.threadTs)],
@@ -89,5 +91,24 @@ export const runs = pgTable(
     index()
       .on(t.status)
       .where(sql`${t.status} in ('queued', 'running')`),
+  ],
+);
+
+export const agentSessionEntries = pgTable(
+  "agent_session_entries",
+  {
+    seq: bigserial({ mode: "number" }).primaryKey(),
+    projectKey: text().notNull(),
+    sessionId: text().notNull(),
+    subpath: text().notNull().default(""),
+    uuid: text(),
+    entry: jsonb().notNull(),
+    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index().on(t.projectKey, t.sessionId, t.subpath, t.seq),
+    uniqueIndex()
+      .on(t.projectKey, t.sessionId, t.subpath, t.uuid)
+      .where(sql`${t.uuid} is not null`),
   ],
 );

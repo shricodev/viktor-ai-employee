@@ -35,3 +35,7 @@ export async function ensureThread(key: ThreadKey): Promise<Thread> {
 export async function setThreadSession(id: string, sessionId: string | null): Promise<void> {
   await getDb().update(threads).set({ sessionId }).where(eq(threads.id, id));
 }
+
+export async function recordThreadCost(id: string, totalCostUsd: number): Promise<void> {
+  await getDb().update(threads).set({ totalCostUsd }).where(eq(threads.id, id));
+}
