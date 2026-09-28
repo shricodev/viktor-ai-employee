@@ -25,6 +25,8 @@ const schema = z.object({
   ANTHROPIC_API_KEY: z.string().min(1),
   AGENT_MODEL: z.string().default("claude-opus-5-5"),
   FAST_MODEL: z.string().default("claude-haiku-5-5"),
+  AGENT_EFFORT: z.enum(["low", "medium", "high", "xhigh", "max"]).default("high"),
+  AGENT_MAX_RUN_USD: z.coerce.number().positive().default(5),
   AGENT_MAX_TURNS: z.coerce.number().int().positive().default(40),
   AGENT_TIMEOUT_MS: z.coerce.number().int().positive().default(15 * 60_000),
 
