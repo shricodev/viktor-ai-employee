@@ -19,7 +19,11 @@ describe("toFileRefs", () => {
 
   it("maps slack files", () => {
     expect(
-      toFileRefs([{ id: "F1", name: "a.csv", mimetype: "text/csv", url_private: "https://x", size: 3 }]),
-    ).toEqual([{ id: "F1", name: "a.csv", mimetype: "text/csv", urlPrivate: "https://x", size: 3 }]);
+      toFileRefs([
+        { id: "F1", name: "a.csv", mimetype: "text/csv", url_private: "https://x", size: 3 },
+      ]),
+    ).toEqual([
+      { id: "F1", name: "a.csv", mimetype: "text/csv", urlPrivate: "https://x", size: 3 },
+    ]);
   });
 });

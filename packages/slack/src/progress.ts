@@ -90,13 +90,21 @@ export class ProgressMessage {
     this.lastUpdate = Date.now();
     const label = this.steps.at(-1) ?? "Working on it…";
     await this.client.chat
-      .update({ channel: this.channel, ts: this.ts, text: label, blocks: this.progressBlocks(label) })
+      .update({
+        channel: this.channel,
+        ts: this.ts,
+        text: label,
+        blocks: this.progressBlocks(label),
+      })
       .catch((err) => logger.warn({ err }, "progress update failed"));
   }
 
   private progressBlocks(current: string): KnownBlock[] {
     const done = this.steps.slice(0, -1).slice(-(MAX_STEPS - 1));
-    const lines = [...done.map((s) => `:white_check_mark: ${s}`), `:hourglass_flowing_sand: ${current}`];
+    const lines = [
+      ...done.map((s) => `:white_check_mark: ${s}`),
+      `:hourglass_flowing_sand: ${current}`,
+    ];
     return [{ type: "context", elements: [{ type: "mrkdwn", text: lines.join("\n") }] }];
   }
 }

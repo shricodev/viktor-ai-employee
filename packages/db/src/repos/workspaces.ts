@@ -44,10 +44,7 @@ export async function getBotToken(id: string): Promise<string> {
 }
 
 export async function markUninstalled(id: string): Promise<void> {
-  await getDb()
-    .update(workspaces)
-    .set({ uninstalledAt: new Date() })
-    .where(eq(workspaces.id, id));
+  await getDb().update(workspaces).set({ uninstalledAt: new Date() }).where(eq(workspaces.id, id));
 }
 
 export async function updateSettings(

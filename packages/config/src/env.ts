@@ -1,8 +1,6 @@
 import { z } from "zod";
 
-const bool = z
-  .enum(["true", "false", "1", "0"])
-  .transform((v) => v === "true" || v === "1");
+const bool = z.enum(["true", "false", "1", "0"]).transform((v) => v === "true" || v === "1");
 
 const schema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
@@ -28,7 +26,11 @@ const schema = z.object({
   AGENT_EFFORT: z.enum(["low", "medium", "high", "xhigh", "max"]).default("high"),
   AGENT_MAX_RUN_USD: z.coerce.number().positive().default(5),
   AGENT_MAX_TURNS: z.coerce.number().int().positive().default(40),
-  AGENT_TIMEOUT_MS: z.coerce.number().int().positive().default(15 * 60_000),
+  AGENT_TIMEOUT_MS: z.coerce
+    .number()
+    .int()
+    .positive()
+    .default(15 * 60_000),
 
   COMPOSIO_API_KEY: z.string().min(1),
   COMPOSIO_WEBHOOK_SECRET: z.string().optional(),

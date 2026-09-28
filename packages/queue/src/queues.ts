@@ -1,4 +1,4 @@
-import { type JobsOptions, Queue, type Processor, Worker, type WorkerOptions } from "bullmq";
+import { type JobsOptions, type Processor, Queue, Worker, type WorkerOptions } from "bullmq";
 import type { Redis } from "ioredis";
 import { createRedis } from "./connection.ts";
 import type { JobMap, QueueName } from "./jobs.ts";

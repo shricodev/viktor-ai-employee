@@ -58,8 +58,20 @@ export const threads = pgTable(
   (t) => [uniqueIndex().on(t.workspaceId, t.channelId, t.threadTs)],
 );
 
-export const runTrigger = pgEnum("run_trigger", ["mention", "dm", "schedule", "event", "proactive"]);
-export const runStatus = pgEnum("run_status", ["queued", "running", "succeeded", "failed", "cancelled"]);
+export const runTrigger = pgEnum("run_trigger", [
+  "mention",
+  "dm",
+  "schedule",
+  "event",
+  "proactive",
+]);
+export const runStatus = pgEnum("run_status", [
+  "queued",
+  "running",
+  "succeeded",
+  "failed",
+  "cancelled",
+]);
 
 export const runs = pgTable(
   "runs",
@@ -88,9 +100,7 @@ export const runs = pgTable(
   },
   (t) => [
     index().on(t.workspaceId, t.createdAt),
-    index()
-      .on(t.status)
-      .where(sql`${t.status} in ('queued', 'running')`),
+    index().on(t.status).where(sql`${t.status} in ('queued', 'running')`),
   ],
 );
 

@@ -13,7 +13,9 @@ export function encrypt(plaintext: string, keyHex: string): string {
   const cipher = createCipheriv("aes-256-gcm", key(keyHex), iv);
   const data = Buffer.concat([cipher.update(plaintext, "utf8"), cipher.final()]);
   const tag = cipher.getAuthTag();
-  return [VERSION, iv.toString("base64"), tag.toString("base64"), data.toString("base64")].join(":");
+  return [VERSION, iv.toString("base64"), tag.toString("base64"), data.toString("base64")].join(
+    ":",
+  );
 }
 
 export function decrypt(payload: string, keyHex: string): string {

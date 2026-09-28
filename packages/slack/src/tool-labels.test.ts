@@ -3,7 +3,9 @@ import { describeTool } from "./tool-labels.ts";
 
 describe("describeTool", () => {
   it("labels built-in tools", () => {
-    expect(describeTool("WebSearch", { query: "q3 revenue" })).toBe("Searching the web: q3 revenue");
+    expect(describeTool("WebSearch", { query: "q3 revenue" })).toBe(
+      "Searching the web: q3 revenue",
+    );
     expect(describeTool("TodoWrite")).toBe("Planning");
   });
 

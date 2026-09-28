@@ -56,7 +56,10 @@ export async function runAgent(input: RunAgentInput): Promise<RunAgentResult> {
   const config = env();
   const cwd = await scratchDir(input.workspaceId);
   const abort = new AbortController();
-  const timeout = setTimeout(() => abort.abort(new Error("agent run timed out")), config.AGENT_TIMEOUT_MS);
+  const timeout = setTimeout(
+    () => abort.abort(new Error("agent run timed out")),
+    config.AGENT_TIMEOUT_MS,
+  );
   input.signal?.addEventListener("abort", () => abort.abort(input.signal?.reason), { once: true });
 
   const builtins = input.builtinTools ?? DEFAULT_BUILTIN_TOOLS;
@@ -124,7 +127,10 @@ export async function runAgent(input: RunAgentInput): Promise<RunAgentResult> {
     }
   } catch (err) {
     if (!abort.signal.aborted) throw err;
-    logger.warn({ workspaceId: input.workspaceId, reason: String(abort.signal.reason) }, "agent aborted");
+    logger.warn(
+      { workspaceId: input.workspaceId, reason: String(abort.signal.reason) },
+      "agent aborted",
+    );
   } finally {
     clearTimeout(timeout);
   }
@@ -143,7 +149,9 @@ export async function runAgent(input: RunAgentInput): Promise<RunAgentResult> {
     return {
       ok: false,
       text: "",
-      errors: [abort.signal.aborted ? String(abort.signal.reason) : "agent exited without a result"],
+      errors: [
+        abort.signal.aborted ? String(abort.signal.reason) : "agent exited without a result",
+      ],
       sessionId,
       numTurns: 0,
       totalCostUsd: 0,

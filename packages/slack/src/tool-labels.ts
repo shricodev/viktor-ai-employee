@@ -5,7 +5,10 @@ const KNOWN: Record<string, string> = {
 };
 
 function humanize(slug: string): string {
-  const words = slug.toLowerCase().split(/[_\s]+/).filter(Boolean);
+  const words = slug
+    .toLowerCase()
+    .split(/[_\s]+/)
+    .filter(Boolean);
   if (!words.length) return slug;
   const [first, ...rest] = words;
   return [first!.charAt(0).toUpperCase() + first!.slice(1), ...rest].join(" ");
