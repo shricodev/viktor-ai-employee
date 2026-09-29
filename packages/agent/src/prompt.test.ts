@@ -1,15 +1,21 @@
+import { SYSTEM_PROMPT_DYNAMIC_BOUNDARY } from "@anthropic-ai/claude-agent-sdk";
 import { describe, expect, it } from "vitest";
 import { buildSystemPrompt, buildTurnContext } from "./prompt.ts";
 
 describe("buildSystemPrompt", () => {
-  it("includes the workspace name and optional persona", () => {
-    const prompt = buildSystemPrompt({ name: "Acme", persona: "Use British spelling." });
-    expect(prompt).toContain('"Acme" Slack workspace');
-    expect(prompt).toContain("Use British spelling.");
+  it("keeps workspace specifics after the cache boundary", () => {
+    const [core, boundary, local] = buildSystemPrompt({
+      name: "Acme",
+      persona: "Use British spelling.",
+    });
+    expect(core).not.toContain("Acme");
+    expect(boundary).toBe(SYSTEM_PROMPT_DYNAMIC_BOUNDARY);
+    expect(local).toContain("Workspace: Acme");
+    expect(local).toContain("Use British spelling.");
   });
 
   it("omits the preferences section without a persona", () => {
-    expect(buildSystemPrompt({ name: "Acme" })).not.toContain("Team preferences");
+    expect(buildSystemPrompt({ name: "Acme" }).join("\n")).not.toContain("Team preferences");
   });
 });
 

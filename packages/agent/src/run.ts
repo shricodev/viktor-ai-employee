@@ -3,6 +3,8 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
   type CanUseTool,
+  type HookCallbackMatcher,
+  type HookEvent,
   type McpServerConfig,
   query,
   type SDKResultMessage,
@@ -17,11 +19,12 @@ export type AgentEvent =
 export type RunAgentInput = {
   workspaceId: string;
   prompt: string;
-  systemPrompt: string;
+  systemPrompt: string[];
   resume?: string | null;
   mcpServers?: Record<string, McpServerConfig>;
   builtinTools?: string[];
   canUseTool?: CanUseTool;
+  hooks?: Partial<Record<HookEvent, HookCallbackMatcher[]>>;
   signal?: AbortSignal;
   maxBudgetUsd?: number;
   onEvent?: (event: AgentEvent) => void | Promise<void>;
@@ -79,6 +82,7 @@ export async function runAgent(input: RunAgentInput): Promise<RunAgentResult> {
       settingSources: [],
       permissionMode: "default",
       canUseTool: input.canUseTool,
+      hooks: input.hooks,
       resume: input.resume ?? undefined,
       sessionStore: postgresSessionStore,
       // The subprocess gets a minimal environment so it never sees our database or Slack secrets.
