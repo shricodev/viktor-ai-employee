@@ -1,0 +1,22 @@
+{
+  "name": "@viktor/worker",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch --env-file-if-exists=../../.env src/main.ts",
+    "start": "node src/main.ts",
+    "typecheck": "tsc -p .",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@slack/web-api": "^8.2.0",
+    "@viktor/agent": "workspace:*",
+    "@viktor/config": "workspace:*",
+    "@viktor/db": "workspace:*",
+    "@viktor/queue": "workspace:*",
+    "@viktor/slack": "workspace:*",
+    "bullmq": "^6.3.16",
+    "ioredis": "^5.8.0"
+  }
+}

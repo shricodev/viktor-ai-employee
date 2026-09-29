@@ -39,3 +39,8 @@ export async function setThreadSession(id: string, sessionId: string | null): Pr
 export async function recordThreadCost(id: string, totalCostUsd: number): Promise<void> {
   await getDb().update(threads).set({ totalCostUsd }).where(eq(threads.id, id));
 }
+
+export async function getThread(id: string): Promise<Thread | undefined> {
+  const [row] = await getDb().select().from(threads).where(eq(threads.id, id));
+  return row;
+}

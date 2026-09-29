@@ -39,6 +39,33 @@ importers:
         specifier: workspace:*
         version: link:../../packages/queue
 
+  apps/worker:
+    dependencies:
+      '@slack/web-api':
+        specifier: ^8.2.0
+        version: 8.2.0
+      '@viktor/agent':
+        specifier: workspace:*
+        version: link:../../packages/agent
+      '@viktor/config':
+        specifier: workspace:*
+        version: link:../../packages/config
+      '@viktor/db':
+        specifier: workspace:*
+        version: link:../../packages/db
+      '@viktor/queue':
+        specifier: workspace:*
+        version: link:../../packages/queue
+      '@viktor/slack':
+        specifier: workspace:*
+        version: link:../../packages/slack
+      bullmq:
+        specifier: ^6.3.16
+        version: 6.3.16(ioredis@5.11.1)
+      ioredis:
+        specifier: ^5.8.0
+        version: 5.11.1
+
   packages/agent:
     dependencies:
       '@anthropic-ai/claude-agent-sdk':
