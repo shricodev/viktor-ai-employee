@@ -1,0 +1,1 @@
+ALTER TABLE "workspaces" ADD COLUMN "composio_session_id" text;

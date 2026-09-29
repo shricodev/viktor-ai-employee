@@ -38,6 +38,7 @@ export const workspaces = pgTable("workspaces", {
   timezone: text().notNull().default("UTC"),
   monthlyBudgetUsd: numeric({ precision: 10, scale: 2, mode: "number" }),
   settings: jsonb().$type<WorkspaceSettings>().notNull().default({}),
+  composioSessionId: text(),
   uninstalledAt: timestamp({ withTimezone: true }),
   ...timestamps,
 });

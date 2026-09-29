@@ -60,7 +60,7 @@ export async function updateSettings(
 
 export async function updateWorkspace(
   id: string,
-  patch: Partial<Pick<Workspace, "timezone" | "monthlyBudgetUsd" | "name">>,
+  patch: Partial<Pick<Workspace, "timezone" | "monthlyBudgetUsd" | "name" | "composioSessionId">>,
 ): Promise<void> {
   await getDb().update(workspaces).set(patch).where(eq(workspaces.id, id));
 }

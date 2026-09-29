@@ -1,0 +1,18 @@
+{
+  "name": "@viktor/composio",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p .",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@composio/core": "^0.25.0",
+    "@viktor/config": "workspace:*",
+    "@viktor/db": "workspace:*"
+  }
+}
