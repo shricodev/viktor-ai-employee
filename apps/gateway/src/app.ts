@@ -3,6 +3,7 @@ import { env, logger } from "@viktor/config";
 import { registerLifecycleHandlers } from "./handlers/lifecycle.ts";
 import { registerMessageHandlers } from "./handlers/messages.ts";
 import { installationStore } from "./installation-store.ts";
+import { connectedPage, connectFailedPage } from "./pages.ts";
 
 export const BOT_SCOPES = [
   "app_mentions:read",
@@ -64,6 +65,11 @@ export function createSlackApp() {
 
   receiver.router.get("/healthz", (_req, res) => {
     res.json({ ok: true });
+  });
+
+  receiver.router.get("/composio/callback", (req, res) => {
+    const failed = req.query.status === "failed" || typeof req.query.error === "string";
+    res.type("html").send(failed ? connectFailedPage : connectedPage);
   });
 
   return { app, receiver };
