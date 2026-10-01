@@ -1,6 +1,7 @@
-import { logger } from "@viktor/config";
+import { env, logger } from "@viktor/config";
 import { closeDb, runMigrations } from "@viktor/db";
 import { closeQueues, closeRedis, work } from "@viktor/queue";
+import { reapIdleSandboxes } from "@viktor/sandbox";
 import { processAgentRun } from "./processors/agent-run.ts";
 
 await runMigrations();
@@ -12,11 +13,19 @@ for (const w of workers) {
 }
 logger.info({ queues: workers.map((w) => w.name) }, "worker started");
 
+const idleMs = env().SANDBOX_IDLE_MINUTES * 60_000;
+const reaper = setInterval(() => {
+  reapIdleSandboxes(idleMs)
+    .then((n) => n && logger.info({ stopped: n }, "stopped idle sandboxes"))
+    .catch((err) => logger.warn({ err }, "sandbox reaper failed"));
+}, 60_000);
+
 let stopping = false;
 async function shutdown(signal: string) {
   if (stopping) return;
   stopping = true;
   logger.info({ signal }, "draining workers");
+  clearInterval(reaper);
   await Promise.all(workers.map((w) => w.close()));
   await closeQueues();
   await closeRedis();

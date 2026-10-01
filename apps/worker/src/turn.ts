@@ -18,6 +18,7 @@ import {
 } from "@viktor/db";
 import type { RunTrigger, SlackFileRef } from "@viktor/queue";
 import { connectCard, describeTool, ProgressMessage, slackFor } from "@viktor/slack";
+import { createViktorServer, importSlackFiles, VIKTOR_SERVER } from "@viktor/tools";
 import { threadHistory } from "./thread-history.ts";
 
 export type Turn = {
@@ -78,9 +79,16 @@ export async function runTurn(turn: Turn): Promise<void> {
     sections.push({ title: "Thread so far", body: history });
   }
   if (turn.files?.length) {
+    progress.step("Reading attached files");
+    const imported = await importSlackFiles(workspace.id, slack, turn.files).catch((err) => {
+      log.warn({ err }, "failed to import slack files");
+      return [];
+    });
     sections.push({
       title: "Attached files",
-      body: turn.files.map((f) => `- ${f.name} (${f.mimetype}, ${f.size} bytes)`).join("\n"),
+      body: imported.length
+        ? imported.map((f) => `- ${f.name} → ${f.path} (${f.mimetype}, ${f.size} bytes)`).join("\n")
+        : "The user attached files but they could not be downloaded.",
     });
   }
   sections.push(await connectedAppsSection(workspace.id));
@@ -96,6 +104,14 @@ export async function runTurn(turn: Turn): Promise<void> {
 
   const mcpServers: Record<string, McpServerConfig> = {
     composio: await composioMcpServer(workspace.id),
+    [VIKTOR_SERVER]: createViktorServer({
+      workspaceId: workspace.id,
+      channelId: turn.channelId,
+      threadTs: turn.threadTs,
+      userId: turn.userId,
+      timezone: workspace.timezone,
+      slack,
+    }),
   };
 
   const hooks: Partial<Record<HookEvent, HookCallbackMatcher[]>> = {

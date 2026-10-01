@@ -62,9 +62,15 @@ importers:
       '@viktor/queue':
         specifier: workspace:*
         version: link:../../packages/queue
+      '@viktor/sandbox':
+        specifier: workspace:*
+        version: link:../../packages/sandbox
       '@viktor/slack':
         specifier: workspace:*
         version: link:../../packages/slack
+      '@viktor/tools':
+        specifier: workspace:*
+        version: link:../../packages/tools
       bullmq:
         specifier: ^6.3.16
         version: 6.3.16(ioredis@5.11.1)

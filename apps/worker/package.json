@@ -17,7 +17,9 @@
     "@viktor/config": "workspace:*",
     "@viktor/db": "workspace:*",
     "@viktor/queue": "workspace:*",
+    "@viktor/sandbox": "workspace:*",
     "@viktor/slack": "workspace:*",
+    "@viktor/tools": "workspace:*",
     "bullmq": "^6.3.16",
     "ioredis": "^5.8.0"
   }
