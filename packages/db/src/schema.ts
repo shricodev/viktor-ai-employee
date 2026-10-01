@@ -123,3 +123,33 @@ export const agentSessionEntries = pgTable(
       .where(sql`${t.uuid} is not null`),
   ],
 );
+
+export const approvalStatus = pgEnum("approval_status", [
+  "pending",
+  "approved",
+  "denied",
+  "expired",
+]);
+
+export const approvals = pgTable(
+  "approvals",
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    workspaceId: text()
+      .notNull()
+      .references(() => workspaces.id, { onDelete: "cascade" }),
+    runId: uuid().references(() => runs.id, { onDelete: "set null" }),
+    toolName: text().notNull(),
+    toolInput: jsonb().notNull(),
+    actions: jsonb().$type<string[]>().notNull().default([]),
+    status: approvalStatus().notNull().default("pending"),
+    requestedBy: text(),
+    channelId: text().notNull(),
+    threadTs: text().notNull(),
+    messageTs: text(),
+    decidedBy: text(),
+    decidedAt: timestamp({ withTimezone: true }),
+    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index().on(t.workspaceId, t.createdAt)],
+);
