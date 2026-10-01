@@ -1,3 +1,4 @@
+export { type Decision, decide, isReadOnlySlug, type PolicyOptions } from "./policy.ts";
 export {
   buildSystemPrompt,
   buildTurnContext,
