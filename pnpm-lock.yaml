@@ -29,6 +29,9 @@ importers:
       '@slack/bolt':
         specifier: ^5.1.0
         version: 5.1.0(@types/express@5.0.6)(undici@8.12.2)
+      '@slack/web-api':
+        specifier: ^8.2.0
+        version: 8.2.0
       '@viktor/config':
         specifier: workspace:*
         version: link:../../packages/config
@@ -38,6 +41,9 @@ importers:
       '@viktor/queue':
         specifier: workspace:*
         version: link:../../packages/queue
+      '@viktor/slack':
+        specifier: workspace:*
+        version: link:../../packages/slack
 
   apps/worker:
     dependencies:

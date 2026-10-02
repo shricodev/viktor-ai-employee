@@ -1,5 +1,6 @@
 import { App, ExpressReceiver, LogLevel } from "@slack/bolt";
 import { env, logger } from "@viktor/config";
+import { registerApprovalHandlers } from "./handlers/approvals.ts";
 import { registerLifecycleHandlers } from "./handlers/lifecycle.ts";
 import { registerMessageHandlers } from "./handlers/messages.ts";
 import { installationStore } from "./installation-store.ts";
@@ -62,6 +63,7 @@ export function createSlackApp() {
 
   registerMessageHandlers(app);
   registerLifecycleHandlers(app);
+  registerApprovalHandlers(app);
 
   receiver.router.get("/healthz", (_req, res) => {
     res.json({ ok: true });

@@ -11,8 +11,10 @@
   },
   "dependencies": {
     "@slack/bolt": "^5.1.0",
+    "@slack/web-api": "^8.2.0",
     "@viktor/config": "workspace:*",
     "@viktor/db": "workspace:*",
-    "@viktor/queue": "workspace:*"
+    "@viktor/queue": "workspace:*",
+    "@viktor/slack": "workspace:*"
   }
 }
