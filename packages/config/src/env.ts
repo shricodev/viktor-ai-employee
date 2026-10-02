@@ -30,6 +30,11 @@ const schema = z.object({
     .number()
     .int()
     .positive()
+    .default(30 * 60_000),
+  APPROVAL_TIMEOUT_MS: z.coerce
+    .number()
+    .int()
+    .positive()
     .default(15 * 60_000),
 
   COMPOSIO_API_KEY: z.string().min(1),

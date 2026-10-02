@@ -1,4 +1,4 @@
-import { logger } from "@viktor/config";
+import { env, logger } from "@viktor/config";
 import { getRun, getWorkspace } from "@viktor/db";
 import type { AgentRunJob } from "@viktor/queue";
 import { slackFor } from "@viktor/slack";
@@ -10,7 +10,7 @@ export async function processAgentRun(job: Job<AgentRunJob>, token?: string): Pr
   const data = job.data;
   const release = await tryLock(
     `thread:${data.workspaceId}:${data.channelId}:${data.threadTs}`,
-    20 * 60_000,
+    env().AGENT_TIMEOUT_MS + 5 * 60_000,
   );
   if (!release) {
     // One run per thread at a time; later messages wait their turn.

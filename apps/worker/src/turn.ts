@@ -19,6 +19,7 @@ import {
 import type { RunTrigger, SlackFileRef } from "@viktor/queue";
 import { connectCard, describeTool, ProgressMessage, slackFor } from "@viktor/slack";
 import { createViktorServer, importSlackFiles, VIKTOR_SERVER } from "@viktor/tools";
+import { approvalGate } from "./approval-gate.ts";
 import { threadHistory } from "./thread-history.ts";
 
 export type Turn = {
@@ -152,7 +153,15 @@ export async function runTurn(turn: Turn): Promise<void> {
       resume: thread?.sessionId,
       mcpServers,
       hooks,
-      canUseTool: async (_name, input) => ({ behavior: "allow", updatedInput: input }),
+      canUseTool: approvalGate({
+        workspaceId: workspace.id,
+        runId: run.id,
+        channelId: turn.channelId,
+        threadTs: turn.threadTs,
+        requestedBy: turn.userId,
+        autoApproved: workspace.settings.autoApprovedTools ?? [],
+        onWaiting: (label) => progress.step(label),
+      }),
       onEvent: (event) => {
         if (event.type === "tool") progress.step(describeTool(event.name, event.input));
       },
