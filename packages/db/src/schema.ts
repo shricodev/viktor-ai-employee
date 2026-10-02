@@ -1,6 +1,7 @@
 import { sql } from "drizzle-orm";
 import {
   bigserial,
+  customType,
   index,
   integer,
   jsonb,
@@ -11,6 +12,7 @@ import {
   timestamp,
   uniqueIndex,
   uuid,
+  vector,
 } from "drizzle-orm/pg-core";
 
 const timestamps = {
@@ -152,4 +154,46 @@ export const approvals = pgTable(
     createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [index().on(t.workspaceId, t.createdAt)],
+);
+
+export const EMBEDDING_DIMENSIONS = 1024;
+
+const tsvector = customType<{ data: string }>({ dataType: () => "tsvector" });
+
+export const memories = pgTable(
+  "memories",
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    workspaceId: text()
+      .notNull()
+      .references(() => workspaces.id, { onDelete: "cascade" }),
+    content: text().notNull(),
+    tags: text().array().notNull().default([]),
+    createdBy: text(),
+    sourceChannelId: text(),
+    embedding: vector({ dimensions: EMBEDDING_DIMENSIONS }),
+    search: tsvector().generatedAlwaysAs(sql`to_tsvector('english', content)`),
+    ...timestamps,
+  },
+  (t) => [
+    index().on(t.workspaceId, t.createdAt),
+    index("memories_search_idx").using("gin", t.search),
+    index("memories_embedding_idx").using("hnsw", t.embedding.op("vector_cosine_ops")),
+  ],
+);
+
+export const skills = pgTable(
+  "skills",
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    workspaceId: text()
+      .notNull()
+      .references(() => workspaces.id, { onDelete: "cascade" }),
+    name: text().notNull(),
+    description: text().notNull(),
+    body: text().notNull(),
+    createdBy: text(),
+    ...timestamps,
+  },
+  (t) => [uniqueIndex().on(t.workspaceId, t.name)],
 );

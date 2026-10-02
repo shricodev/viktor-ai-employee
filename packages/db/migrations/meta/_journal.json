@@ -29,6 +29,13 @@
       "when": 1792217950118,
       "tag": "0003_approvals",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1792218154004,
+      "tag": "0004_memory_and_skills",
+      "breakpoints": true
     }
   ]
 }
