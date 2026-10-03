@@ -1,6 +1,8 @@
 import { createSdkMcpServer } from "@anthropic-ai/claude-agent-sdk";
 import type { ToolContext } from "./context.ts";
+import { memoryTools } from "./memory.ts";
 import { sandboxTools } from "./sandbox.ts";
+import { skillTools } from "./skills.ts";
 import { slackTools } from "./slack.ts";
 
 export const VIKTOR_SERVER = "viktor";
@@ -11,6 +13,6 @@ export function createViktorServer(ctx: ToolContext) {
     name: VIKTOR_SERVER,
     version: "0.1.0",
     alwaysLoad: true,
-    tools: [...sandboxTools(ctx), ...slackTools(ctx)],
+    tools: [...sandboxTools(ctx), ...slackTools(ctx), ...memoryTools(ctx), ...skillTools(ctx)],
   });
 }
