@@ -9,8 +9,10 @@ import { env, logger } from "@viktor/config";
 import {
   finishRun,
   getThread,
+  listSkills,
   type Run,
   recordThreadCost,
+  searchMemories,
   setThreadSession,
   spendSince,
   startRun,
@@ -18,7 +20,7 @@ import {
 } from "@viktor/db";
 import type { RunTrigger, SlackFileRef } from "@viktor/queue";
 import { connectCard, describeTool, ProgressMessage, slackFor } from "@viktor/slack";
-import { createViktorServer, importSlackFiles, VIKTOR_SERVER } from "@viktor/tools";
+import { createViktorServer, embed, importSlackFiles, VIKTOR_SERVER } from "@viktor/tools";
 import { approvalGate } from "./approval-gate.ts";
 import { threadHistory } from "./thread-history.ts";
 
@@ -37,6 +39,25 @@ export type Turn = {
 
 function monthStart(now = new Date()): Date {
   return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+}
+
+async function knowledgeSections(workspaceId: string, query: string) {
+  const [memories, skills] = await Promise.all([
+    query.trim()
+      ? searchMemories({ workspaceId, query, embedding: await embed(query, "query"), limit: 8 })
+      : Promise.resolve([]),
+    listSkills(workspaceId),
+  ]);
+  return [
+    {
+      title: "Relevant memories",
+      body: memories.map((m) => `- ${m.content} (id ${m.id})`).join("\n"),
+    },
+    {
+      title: "Your skills",
+      body: skills.map((s) => `- ${s.name}: ${s.description}`).join("\n"),
+    },
+  ];
 }
 
 async function connectedAppsSection(workspaceId: string) {
@@ -92,7 +113,14 @@ export async function runTurn(turn: Turn): Promise<void> {
         : "The user attached files but they could not be downloaded.",
     });
   }
-  sections.push(await connectedAppsSection(workspace.id));
+  const [knowledge, apps] = await Promise.all([
+    knowledgeSections(workspace.id, turn.text).catch((err) => {
+      log.warn({ err }, "failed to load memories and skills");
+      return [];
+    }),
+    connectedAppsSection(workspace.id),
+  ]);
+  sections.push(...knowledge, apps);
 
   const context = buildTurnContext({
     now: new Date(),
