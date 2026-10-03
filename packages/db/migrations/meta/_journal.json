@@ -36,6 +36,13 @@
       "when": 1792218154004,
       "tag": "0004_memory_and_skills",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1792218306152,
+      "tag": "0005_schedules_and_triggers",
+      "breakpoints": true
     }
   ]
 }

@@ -1,6 +1,7 @@
 import { sql } from "drizzle-orm";
 import {
   bigserial,
+  boolean,
   customType,
   index,
   integer,
@@ -196,4 +197,44 @@ export const skills = pgTable(
     ...timestamps,
   },
   (t) => [uniqueIndex().on(t.workspaceId, t.name)],
+);
+
+export const schedules = pgTable(
+  "schedules",
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    workspaceId: text()
+      .notNull()
+      .references(() => workspaces.id, { onDelete: "cascade" }),
+    name: text().notNull(),
+    cron: text().notNull(),
+    timezone: text().notNull(),
+    prompt: text().notNull(),
+    channelId: text().notNull(),
+    createdBy: text(),
+    enabled: boolean().notNull().default(true),
+    lastRunAt: timestamp({ withTimezone: true }),
+    ...timestamps,
+  },
+  (t) => [index().on(t.workspaceId)],
+);
+
+export const triggerSubscriptions = pgTable(
+  "trigger_subscriptions",
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    workspaceId: text()
+      .notNull()
+      .references(() => workspaces.id, { onDelete: "cascade" }),
+    composioTriggerId: text().notNull(),
+    triggerSlug: text().notNull(),
+    triggerConfig: jsonb().$type<Record<string, unknown>>().notNull().default({}),
+    instruction: text().notNull(),
+    channelId: text().notNull(),
+    createdBy: text(),
+    enabled: boolean().notNull().default(true),
+    lastFiredAt: timestamp({ withTimezone: true }),
+    ...timestamps,
+  },
+  (t) => [uniqueIndex().on(t.composioTriggerId), index().on(t.workspaceId)],
 );
