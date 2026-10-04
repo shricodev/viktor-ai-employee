@@ -3,6 +3,7 @@ import { closeDb, runMigrations } from "@viktor/db";
 import { closeQueues, closeRedis, work } from "@viktor/queue";
 import { reapIdleSandboxes } from "@viktor/sandbox";
 import { processAgentRun } from "./processors/agent-run.ts";
+import { processScheduledRun, reconcileSchedules } from "./processors/scheduled-run.ts";
 
 await runMigrations();
 
@@ -12,6 +13,7 @@ for (const w of workers) {
   w.on("failed", (job, err) => logger.error({ queue: w.name, jobId: job?.id, err }, "job failed"));
 }
 logger.info({ queues: workers.map((w) => w.name) }, "worker started");
+logger.info({ count: await reconcileSchedules() }, "schedules reconciled");
 
 const idleMs = env().SANDBOX_IDLE_MINUTES * 60_000;
 const reaper = setInterval(() => {
