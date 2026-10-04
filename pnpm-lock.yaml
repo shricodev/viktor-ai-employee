@@ -191,6 +191,9 @@ importers:
       '@slack/web-api':
         specifier: ^8.2.0
         version: 8.2.0
+      '@viktor/composio':
+        specifier: workspace:*
+        version: link:../composio
       '@viktor/config':
         specifier: workspace:*
         version: link:../config
@@ -203,6 +206,9 @@ importers:
       '@viktor/sandbox':
         specifier: workspace:*
         version: link:../sandbox
+      cron-parser:
+        specifier: ^5.10.2
+        version: 5.10.2
       zod:
         specifier: ^4.6.7
         version: 4.6.7
