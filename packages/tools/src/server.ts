@@ -5,6 +5,7 @@ import { sandboxTools } from "./sandbox.ts";
 import { scheduleTools } from "./schedules.ts";
 import { skillTools } from "./skills.ts";
 import { slackTools } from "./slack.ts";
+import { triggerTools } from "./triggers.ts";
 
 export const VIKTOR_SERVER = "viktor";
 
@@ -20,6 +21,7 @@ export function createViktorServer(ctx: ToolContext) {
       ...memoryTools(ctx),
       ...skillTools(ctx),
       ...scheduleTools(ctx),
+      ...triggerTools(ctx),
     ],
   });
 }
