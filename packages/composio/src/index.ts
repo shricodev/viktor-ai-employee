@@ -13,3 +13,12 @@ export {
   forgetSession,
   useSession,
 } from "./session.ts";
+export {
+  createTrigger,
+  deleteTrigger,
+  listTriggerTypes,
+  parseTriggerWebhook,
+  registerWebhook,
+  type TriggerEvent,
+  type TriggerType,
+} from "./triggers.ts";
