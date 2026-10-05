@@ -22,7 +22,7 @@ export function mountComposioWebhook(router: Router): void {
       }
 
       const sub = await findTriggerByComposioId(event.triggerId);
-      if (!sub || !sub.enabled) {
+      if (!sub?.enabled) {
         logger.info({ triggerId: event.triggerId }, "webhook for unknown or disabled trigger");
         res.sendStatus(202);
         return;

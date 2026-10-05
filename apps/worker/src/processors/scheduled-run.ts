@@ -17,7 +17,7 @@ import { runTurn } from "../turn.ts";
 export async function processScheduledRun(job: Job<ScheduledRunJob>): Promise<void> {
   const { scheduleId } = job.data;
   const schedule = await getSchedule(scheduleId);
-  if (!schedule || !schedule.enabled) {
+  if (!schedule?.enabled) {
     await removeSchedule(scheduleId);
     return;
   }

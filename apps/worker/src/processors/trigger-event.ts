@@ -18,7 +18,7 @@ const MAX_PAYLOAD_CHARS = 20_000;
 
 export async function processTriggerEvent(job: Job<TriggerEventJob>): Promise<void> {
   const sub = await getTriggerSubscription(job.data.subscriptionId);
-  if (!sub || !sub.enabled) return;
+  if (!sub?.enabled) return;
   const workspace = await getWorkspace(sub.workspaceId);
   if (!workspace || workspace.uninstalledAt) return;
 

@@ -8,7 +8,11 @@ import { processTriggerEvent } from "./processors/trigger-event.ts";
 
 await runMigrations();
 
-const workers = [work("agent-run", processAgentRun, { concurrency: 8, lockDuration: 60_000 })];
+const workers = [
+  work("agent-run", processAgentRun, { concurrency: 8, lockDuration: 60_000 }),
+  work("scheduled-run", processScheduledRun, { concurrency: 4, lockDuration: 60_000 }),
+  work("trigger-event", processTriggerEvent, { concurrency: 4, lockDuration: 60_000 }),
+];
 
 for (const w of workers) {
   w.on("failed", (job, err) => logger.error({ queue: w.name, jobId: job?.id, err }, "job failed"));
