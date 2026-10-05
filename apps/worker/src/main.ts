@@ -4,6 +4,7 @@ import { closeQueues, closeRedis, work } from "@viktor/queue";
 import { reapIdleSandboxes } from "@viktor/sandbox";
 import { processAgentRun } from "./processors/agent-run.ts";
 import { processScheduledRun, reconcileSchedules } from "./processors/scheduled-run.ts";
+import { processTriggerEvent } from "./processors/trigger-event.ts";
 
 await runMigrations();
 
