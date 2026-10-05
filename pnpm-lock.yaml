@@ -32,6 +32,9 @@ importers:
       '@slack/web-api':
         specifier: ^8.2.0
         version: 8.2.0
+      '@viktor/composio':
+        specifier: workspace:*
+        version: link:../../packages/composio
       '@viktor/config':
         specifier: workspace:*
         version: link:../../packages/config
@@ -44,6 +47,13 @@ importers:
       '@viktor/slack':
         specifier: workspace:*
         version: link:../../packages/slack
+      express:
+        specifier: ^5.1.0
+        version: 5.3.0
+    devDependencies:
+      '@types/express':
+        specifier: ^5.0.6
+        version: 5.0.6
 
   apps/worker:
     dependencies:

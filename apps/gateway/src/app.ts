@@ -5,6 +5,7 @@ import { registerLifecycleHandlers } from "./handlers/lifecycle.ts";
 import { registerMessageHandlers } from "./handlers/messages.ts";
 import { installationStore } from "./installation-store.ts";
 import { connectedPage, connectFailedPage } from "./pages.ts";
+import { mountComposioWebhook } from "./routes/composio-webhook.ts";
 
 export const BOT_SCOPES = [
   "app_mentions:read",
@@ -68,6 +69,8 @@ export function createSlackApp() {
   receiver.router.get("/healthz", (_req, res) => {
     res.json({ ok: true });
   });
+
+  mountComposioWebhook(receiver.router);
 
   receiver.router.get("/composio/callback", (req, res) => {
     const failed = req.query.status === "failed" || typeof req.query.error === "string";

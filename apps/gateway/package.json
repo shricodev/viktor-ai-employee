@@ -7,14 +7,20 @@
     "dev": "node --watch --env-file-if-exists=../../.env src/main.ts",
     "start": "node src/main.ts",
     "typecheck": "tsc -p .",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run --passWithNoTests",
+    "register-webhook": "node --env-file-if-exists=../../.env scripts/register-composio-webhook.ts"
   },
   "dependencies": {
     "@slack/bolt": "^5.1.0",
     "@slack/web-api": "^8.2.0",
+    "@viktor/composio": "workspace:*",
     "@viktor/config": "workspace:*",
     "@viktor/db": "workspace:*",
     "@viktor/queue": "workspace:*",
-    "@viktor/slack": "workspace:*"
+    "@viktor/slack": "workspace:*",
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6"
   }
 }
