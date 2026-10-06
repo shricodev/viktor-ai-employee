@@ -1,6 +1,9 @@
 import type { App } from "@slack/bolt";
+import { env } from "@viktor/config";
 import { findThread } from "@viktor/db";
+import { enqueue } from "@viktor/queue";
 import { dispatchRun } from "../dispatch.ts";
+import { workspaceSettings } from "../settings-cache.ts";
 import { stripMention, toFileRefs } from "../text.ts";
 
 async function acknowledge(app: App, token: string | undefined, channel: string, ts: string) {
@@ -39,13 +42,27 @@ export function registerMessageHandlers(app: App): void {
 
     const threadTs = "thread_ts" in message ? message.thread_ts : undefined;
     if (!isDm) {
-      if (!threadTs) return;
-      const known = await findThread({
-        workspaceId: context.teamId,
-        channelId: message.channel,
-        threadTs,
-      });
-      if (!known) return;
+      const known = threadTs
+        ? await findThread({ workspaceId: context.teamId, channelId: message.channel, threadTs })
+        : undefined;
+      if (!known) {
+        const settings = await workspaceSettings(context.teamId);
+        if (env().PROACTIVE_ENABLED && settings.proactiveChannels?.includes(message.channel)) {
+          await enqueue(
+            "channel-message",
+            {
+              workspaceId: context.teamId,
+              channelId: message.channel,
+              ts: message.ts,
+              threadTs,
+              userId: message.user,
+              text: message.text ?? "",
+            },
+            { jobId: `watch-${context.teamId}-${message.channel}-${message.ts}`, attempts: 1 },
+          );
+        }
+        return;
+      }
     }
 
     await acknowledge(app, context.botToken, message.channel, message.ts);

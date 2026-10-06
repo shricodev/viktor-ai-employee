@@ -4,6 +4,7 @@ import { decideApproval, getApproval, getWorkspace, updateSettings } from "@vikt
 import { publishApproval } from "@viktor/queue";
 import { resolvedApprovalCard } from "@viktor/slack";
 import { isWorkspaceAdmin } from "../permissions.ts";
+import { invalidateSettings } from "../settings-cache.ts";
 
 export function registerApprovalHandlers(app: App): void {
   app.action<BlockAction<ButtonAction>>(
@@ -48,6 +49,7 @@ export function registerApprovalHandlers(app: App): void {
         const current = new Set(workspace.settings.autoApprovedTools ?? []);
         for (const a of approval.actions) current.add(a);
         await updateSettings(workspace.id, { autoApprovedTools: [...current] });
+        invalidateSettings(workspace.id);
       }
 
       await publishApproval(approval.id, outcome);
