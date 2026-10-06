@@ -9,6 +9,7 @@ export * from "./repos/schedules.ts";
 export * from "./repos/skills.ts";
 export * from "./repos/threads.ts";
 export * from "./repos/triggers.ts";
+export * from "./repos/wipe.ts";
 export * from "./repos/workspaces.ts";
 export * as schema from "./schema.ts";
 export * from "./schema.ts";

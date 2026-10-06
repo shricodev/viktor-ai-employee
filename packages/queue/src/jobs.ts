@@ -39,12 +39,15 @@ export type ChannelMessageJob = {
 
 export type DailyCheckinJob = { workspaceId: string };
 
+export type WipeWorkspaceJob = { workspaceId: string; requestedBy: string };
+
 export type JobMap = {
   "agent-run": AgentRunJob;
   "scheduled-run": ScheduledRunJob;
   "trigger-event": TriggerEventJob;
   "channel-message": ChannelMessageJob;
   "daily-checkin": DailyCheckinJob;
+  "wipe-workspace": WipeWorkspaceJob;
 };
 
 export type QueueName = keyof JobMap;

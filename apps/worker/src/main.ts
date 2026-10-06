@@ -7,6 +7,7 @@ import { processChannelMessage } from "./processors/channel-message.ts";
 import { processDailyCheckin, reconcileCheckins } from "./processors/daily-checkin.ts";
 import { processScheduledRun, reconcileSchedules } from "./processors/scheduled-run.ts";
 import { processTriggerEvent } from "./processors/trigger-event.ts";
+import { processWipeWorkspace } from "./processors/wipe-workspace.ts";
 
 await runMigrations();
 
@@ -16,6 +17,7 @@ const workers = [
   work("trigger-event", processTriggerEvent, { concurrency: 4, lockDuration: 60_000 }),
   work("channel-message", processChannelMessage, { concurrency: 8, lockDuration: 60_000 }),
   work("daily-checkin", processDailyCheckin, { concurrency: 2, lockDuration: 60_000 }),
+  work("wipe-workspace", processWipeWorkspace, { concurrency: 1 }),
 ];
 
 for (const w of workers) {

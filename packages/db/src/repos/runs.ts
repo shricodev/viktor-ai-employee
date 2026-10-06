@@ -61,3 +61,11 @@ export async function recentRuns(workspaceId: string, since: Date, limit = 50): 
     .orderBy(desc(runs.createdAt))
     .limit(limit);
 }
+
+export async function countRunsSince(workspaceId: string, since: Date): Promise<number> {
+  const [row] = await getDb()
+    .select({ n: sql<number>`count(*)::int` })
+    .from(runs)
+    .where(and(eq(runs.workspaceId, workspaceId), gte(runs.createdAt, since)));
+  return row?.n ?? 0;
+}
