@@ -33,3 +33,10 @@ export async function decideApproval(
     .returning();
   return row ?? null;
 }
+
+export async function pendingApprovals(workspaceId: string): Promise<Approval[]> {
+  return getDb()
+    .select()
+    .from(approvals)
+    .where(and(eq(approvals.workspaceId, workspaceId), eq(approvals.status, "pending")));
+}

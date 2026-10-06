@@ -1,5 +1,5 @@
 import { env } from "@viktor/config";
-import { eq } from "drizzle-orm";
+import { and, eq, isNull, sql } from "drizzle-orm";
 import { getDb } from "../client.ts";
 import { decrypt, encrypt } from "../crypto.ts";
 import { type WorkspaceSettings, workspaces } from "../schema.ts";
@@ -63,4 +63,16 @@ export async function updateWorkspace(
   patch: Partial<Pick<Workspace, "timezone" | "monthlyBudgetUsd" | "name" | "composioSessionId">>,
 ): Promise<void> {
   await getDb().update(workspaces).set(patch).where(eq(workspaces.id, id));
+}
+
+export async function workspacesWithCheckin(): Promise<Workspace[]> {
+  return getDb()
+    .select()
+    .from(workspaces)
+    .where(
+      and(
+        isNull(workspaces.uninstalledAt),
+        sql`${workspaces.settings}->>'checkinChannelId' is not null`,
+      ),
+    );
 }

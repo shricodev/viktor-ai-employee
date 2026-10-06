@@ -26,6 +26,7 @@ const timestamps = {
 
 export type WorkspaceSettings = {
   proactiveChannels?: string[];
+  checkinChannelId?: string;
   autoApprovedTools?: string[];
   persona?: string;
 };

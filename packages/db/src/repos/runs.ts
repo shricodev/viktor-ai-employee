@@ -1,4 +1,4 @@
-import { and, eq, gte, sql } from "drizzle-orm";
+import { and, desc, eq, gte, sql } from "drizzle-orm";
 import { getDb } from "../client.ts";
 import { runs } from "../schema.ts";
 
@@ -51,4 +51,13 @@ export async function spendSince(workspaceId: string, since: Date): Promise<numb
     .from(runs)
     .where(and(eq(runs.workspaceId, workspaceId), gte(runs.createdAt, since)));
   return Number(row?.total ?? 0);
+}
+
+export async function recentRuns(workspaceId: string, since: Date, limit = 50): Promise<Run[]> {
+  return getDb()
+    .select()
+    .from(runs)
+    .where(and(eq(runs.workspaceId, workspaceId), gte(runs.createdAt, since)))
+    .orderBy(desc(runs.createdAt))
+    .limit(limit);
 }
