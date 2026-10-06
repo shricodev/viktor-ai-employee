@@ -3,6 +3,7 @@ import { closeDb, runMigrations } from "@viktor/db";
 import { closeQueues, closeRedis, work } from "@viktor/queue";
 import { reapIdleSandboxes } from "@viktor/sandbox";
 import { processAgentRun } from "./processors/agent-run.ts";
+import { processChannelMessage } from "./processors/channel-message.ts";
 import { processScheduledRun, reconcileSchedules } from "./processors/scheduled-run.ts";
 import { processTriggerEvent } from "./processors/trigger-event.ts";
 
@@ -12,6 +13,7 @@ const workers = [
   work("agent-run", processAgentRun, { concurrency: 8, lockDuration: 60_000 }),
   work("scheduled-run", processScheduledRun, { concurrency: 4, lockDuration: 60_000 }),
   work("trigger-event", processTriggerEvent, { concurrency: 4, lockDuration: 60_000 }),
+  work("channel-message", processChannelMessage, { concurrency: 8, lockDuration: 60_000 }),
 ];
 
 for (const w of workers) {
