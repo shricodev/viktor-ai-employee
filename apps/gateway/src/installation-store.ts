@@ -1,5 +1,7 @@
 import type { Installation, InstallationQuery, InstallationStore } from "@slack/bolt";
-import { getInstallation, markUninstalled, upsertWorkspace } from "@viktor/db";
+import { logger } from "@viktor/config";
+import { getInstallation, getWorkspace, markUninstalled, upsertWorkspace } from "@viktor/db";
+import { welcome } from "./onboarding.ts";
 
 export const installationStore: InstallationStore = {
   async storeInstallation(installation) {
@@ -7,6 +9,7 @@ export const installationStore: InstallationStore = {
       throw new Error("Org-wide installs are not supported yet; install into a single workspace.");
     }
     if (!installation.bot) throw new Error("Installation is missing a bot token");
+    const existing = await getWorkspace(installation.team.id);
     await upsertWorkspace({
       id: installation.team.id,
       enterpriseId: installation.enterprise?.id ?? null,
@@ -16,6 +19,11 @@ export const installationStore: InstallationStore = {
       installerUserId: installation.user.id,
       installation,
     });
+    if (!existing) {
+      void welcome(installation.team.id, installation.bot.token, installation.user.id).catch(
+        (err) => logger.warn({ err }, "welcome flow failed"),
+      );
+    }
   },
 
   async fetchInstallation(query: InstallationQuery<boolean>) {
