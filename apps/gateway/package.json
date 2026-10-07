@@ -18,6 +18,7 @@
     "@viktor/db": "workspace:*",
     "@viktor/queue": "workspace:*",
     "@viktor/slack": "workspace:*",
+    "@viktor/tools": "workspace:*",
     "express": "^5.1.0"
   },
   "devDependencies": {
