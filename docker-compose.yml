@@ -28,6 +28,45 @@ services:
       interval: 5s
       retries: 10
 
+  sandbox-image:
+    profiles: ["app"]
+    build: ./sandbox-image
+    image: viktor-sandbox:latest
+    entrypoint: ["true"]
+
+  gateway:
+    profiles: ["app"]
+    build: { context: ., target: gateway }
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      DATABASE_URL: postgres://viktor:viktor@postgres:5432/viktor
+      REDIS_URL: redis://redis:6379
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    restart: unless-stopped
+
+  worker:
+    profiles: ["app"]
+    build: { context: ., target: worker }
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      DATABASE_URL: postgres://viktor:viktor@postgres:5432/viktor
+      REDIS_URL: redis://redis:6379
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+      sandbox-image: { condition: service_completed_successfully }
+    restart: unless-stopped
+
 volumes:
   pgdata:
   redisdata:
