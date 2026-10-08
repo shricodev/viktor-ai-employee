@@ -4,15 +4,13 @@ import type {
   McpServerConfig,
 } from "@anthropic-ai/claude-agent-sdk";
 import { buildSystemPrompt, buildTurnContext, runAgent } from "@viktor/agent";
-import { composioMcpServer, extractConnectLinks, listConnections } from "@viktor/composio";
+import { composioMcpServer, extractConnectLinks } from "@viktor/composio";
 import { env, logger } from "@viktor/config";
 import {
   finishRun,
   getThread,
-  listSkills,
   type Run,
   recordThreadCost,
-  searchMemories,
   setThreadSession,
   spendSince,
   startRun,
@@ -20,8 +18,9 @@ import {
 } from "@viktor/db";
 import type { RunTrigger, SlackFileRef } from "@viktor/queue";
 import { connectCard, describeTool, ProgressMessage, slackFor } from "@viktor/slack";
-import { createViktorServer, embed, importSlackFiles, VIKTOR_SERVER } from "@viktor/tools";
+import { createViktorServer, importSlackFiles, VIKTOR_SERVER } from "@viktor/tools";
 import { approvalGate } from "./approval-gate.ts";
+import { workspaceContext } from "./context.ts";
 import { threadHistory } from "./thread-history.ts";
 
 export type Turn = {
@@ -39,38 +38,6 @@ export type Turn = {
 
 function monthStart(now = new Date()): Date {
   return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
-}
-
-async function knowledgeSections(workspaceId: string, query: string) {
-  const [memories, skills] = await Promise.all([
-    query.trim()
-      ? searchMemories({ workspaceId, query, embedding: await embed(query, "query"), limit: 8 })
-      : Promise.resolve([]),
-    listSkills(workspaceId),
-  ]);
-  return [
-    {
-      title: "Relevant memories",
-      body: memories.map((m) => `- ${m.content} (id ${m.id})`).join("\n"),
-    },
-    {
-      title: "Your skills",
-      body: skills.map((s) => `- ${s.name}: ${s.description}`).join("\n"),
-    },
-  ];
-}
-
-async function connectedAppsSection(workspaceId: string) {
-  const apps = await listConnections(workspaceId).catch((err) => {
-    logger.warn({ err, workspaceId }, "could not list composio connections");
-    return null;
-  });
-  if (!apps) return { title: "Connected apps", body: "Unknown (lookup failed)." };
-  const active = apps.filter((a) => a.active).map((a) => a.slug);
-  return {
-    title: "Connected apps",
-    body: active.length ? active.join(", ") : "None yet.",
-  };
 }
 
 /** Runs one agent turn for a Slack thread and posts the outcome there. */
@@ -113,14 +80,7 @@ export async function runTurn(turn: Turn): Promise<void> {
         : "The user attached files but they could not be downloaded.",
     });
   }
-  const [knowledge, apps] = await Promise.all([
-    knowledgeSections(workspace.id, turn.text).catch((err) => {
-      log.warn({ err }, "failed to load memories and skills");
-      return [];
-    }),
-    connectedAppsSection(workspace.id),
-  ]);
-  sections.push(...knowledge, apps);
+  sections.push(...(await workspaceContext(workspace.id, turn.text)));
 
   const context = buildTurnContext({
     now: new Date(),
