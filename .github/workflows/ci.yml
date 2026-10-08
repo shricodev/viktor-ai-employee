@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+
+  sandbox:
+    runs-on: ubuntu-latest
+    needs: check
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: docker build -t viktor-sandbox:latest sandbox-image
+      - name: Sandbox isolation tests
+        run: pnpm --filter @viktor/sandbox test
+        env:
+          SANDBOX_IT: "1"
+          DATABASE_URL: postgres://unused@localhost/unused
+          PUBLIC_URL: https://ci.invalid
+          ENCRYPTION_KEY: "0000000000000000000000000000000000000000000000000000000000000000"
+          SLACK_CLIENT_ID: ci
+          SLACK_CLIENT_SECRET: ci
+          SLACK_SIGNING_SECRET: ci
+          SLACK_STATE_SECRET: ci-state-secret-value
+          ANTHROPIC_API_KEY: ci
+          COMPOSIO_API_KEY: ci
+
+  images:
+    runs-on: ubuntu-latest
+    needs: check
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - run: docker build --target gateway -t viktor-gateway .
+      - run: docker build --target worker -t viktor-worker .
