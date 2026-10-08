@@ -1,4 +1,4 @@
-import type { WebClient } from "@slack/web-api";
+export type SharedFile = { file: Buffer; filename: string; title?: string; comment?: string };
 
 export type ToolContext = {
   workspaceId: string;
@@ -6,7 +6,7 @@ export type ToolContext = {
   threadTs: string;
   userId?: string;
   timezone: string;
-  slack: WebClient;
+  shareFile: (file: SharedFile) => Promise<void>;
 };
 
 export function text(value: string) {

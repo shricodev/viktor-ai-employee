@@ -17,14 +17,7 @@ export function slackTools(ctx: ToolContext) {
       async ({ path, title, comment }) => {
         const file = await readSandboxFile(ctx.workspaceId, path);
         const filename = posix.basename(path);
-        await ctx.slack.files.uploadV2({
-          channel_id: ctx.channelId,
-          thread_ts: ctx.threadTs,
-          file,
-          filename,
-          title: title ?? filename,
-          initial_comment: comment,
-        });
+        await ctx.shareFile({ file, filename, title: title ?? filename, comment });
         return text(`Shared ${filename} (${file.length} bytes) in the thread.`);
       },
     ),

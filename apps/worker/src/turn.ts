@@ -139,7 +139,16 @@ export async function runTurn(turn: Turn): Promise<void> {
       threadTs: turn.threadTs,
       userId: turn.userId,
       timezone: workspace.timezone,
-      slack,
+      shareFile: async ({ file, filename, title, comment }) => {
+        await slack.files.uploadV2({
+          channel_id: turn.channelId,
+          thread_ts: turn.threadTs,
+          file,
+          filename,
+          title,
+          initial_comment: comment,
+        });
+      },
     }),
   };
 
