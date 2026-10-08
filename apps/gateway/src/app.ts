@@ -1,5 +1,5 @@
 import { App, ExpressReceiver, LogLevel } from "@slack/bolt";
-import { env, logger } from "@viktor/config";
+import { env, logger, slackConfig } from "@viktor/config";
 import { registerApprovalHandlers } from "./handlers/approvals.ts";
 import { registerHomeHandlers } from "./handlers/home.ts";
 import { registerLifecycleHandlers } from "./handlers/lifecycle.ts";
@@ -42,11 +42,12 @@ const boltLogger = {
 
 export function createSlackApp() {
   const config = env();
+  const slack = slackConfig();
   const receiver = new ExpressReceiver({
-    signingSecret: config.SLACK_SIGNING_SECRET,
-    clientId: config.SLACK_CLIENT_ID,
-    clientSecret: config.SLACK_CLIENT_SECRET,
-    stateSecret: config.SLACK_STATE_SECRET,
+    signingSecret: slack.signingSecret,
+    clientId: slack.clientId,
+    clientSecret: slack.clientSecret,
+    stateSecret: slack.stateSecret,
     scopes: BOT_SCOPES,
     installationStore,
     redirectUri: `${config.PUBLIC_URL}/slack/oauth_redirect`,

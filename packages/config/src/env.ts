@@ -15,10 +15,10 @@ const schema = z.object({
     .string()
     .regex(/^[0-9a-f]{64}$/i, "must be 32 bytes hex (openssl rand -hex 32)"),
 
-  SLACK_CLIENT_ID: z.string().min(1),
-  SLACK_CLIENT_SECRET: z.string().min(1),
-  SLACK_SIGNING_SECRET: z.string().min(1),
-  SLACK_STATE_SECRET: z.string().min(16),
+  SLACK_CLIENT_ID: z.string().min(1).optional(),
+  SLACK_CLIENT_SECRET: z.string().min(1).optional(),
+  SLACK_SIGNING_SECRET: z.string().min(1).optional(),
+  SLACK_STATE_SECRET: z.string().min(16).optional(),
 
   ANTHROPIC_API_KEY: z.string().min(1),
   AGENT_MODEL: z.string().default("claude-opus-5-5"),
@@ -64,4 +64,27 @@ export function env(): Env {
   }
   cached = parsed.data;
   return cached;
+}
+
+export type SlackConfig = {
+  clientId: string;
+  clientSecret: string;
+  signingSecret: string;
+  stateSecret: string;
+};
+
+/** Slack credentials are only needed by the gateway; the worker and CLI run without them. */
+export function slackConfig(): SlackConfig {
+  const { SLACK_CLIENT_ID, SLACK_CLIENT_SECRET, SLACK_SIGNING_SECRET, SLACK_STATE_SECRET } = env();
+  if (!SLACK_CLIENT_ID || !SLACK_CLIENT_SECRET || !SLACK_SIGNING_SECRET || !SLACK_STATE_SECRET) {
+    throw new Error(
+      "SLACK_CLIENT_ID, SLACK_CLIENT_SECRET, SLACK_SIGNING_SECRET and SLACK_STATE_SECRET are required",
+    );
+  }
+  return {
+    clientId: SLACK_CLIENT_ID,
+    clientSecret: SLACK_CLIENT_SECRET,
+    signingSecret: SLACK_SIGNING_SECRET,
+    stateSecret: SLACK_STATE_SECRET,
+  };
 }
