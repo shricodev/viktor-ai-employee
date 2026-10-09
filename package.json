@@ -12,7 +12,8 @@
     "test": "turbo run test",
     "lint": "biome check .",
     "format": "biome check --write .",
-    "chat": "pnpm --filter @viktor/worker chat"
+    "chat": "pnpm --filter @viktor/worker chat",
+    "eval": "pnpm --filter @viktor/evals eval"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.15",

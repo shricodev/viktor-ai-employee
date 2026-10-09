@@ -1,0 +1,19 @@
+{
+  "name": "@viktor/evals",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "eval": "node --env-file-if-exists=../.env run.ts",
+    "typecheck": "tsc -p ."
+  },
+  "dependencies": {
+    "@viktor/agent": "workspace:*",
+    "@viktor/composio": "workspace:*",
+    "@viktor/config": "workspace:*",
+    "@viktor/db": "workspace:*",
+    "@viktor/queue": "workspace:*",
+    "@viktor/sandbox": "workspace:*",
+    "@viktor/tools": "workspace:*"
+  }
+}

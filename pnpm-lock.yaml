@@ -97,6 +97,30 @@ importers:
         specifier: ^5.8.0
         version: 5.11.1
 
+  evals:
+    dependencies:
+      '@viktor/agent':
+        specifier: workspace:*
+        version: link:../packages/agent
+      '@viktor/composio':
+        specifier: workspace:*
+        version: link:../packages/composio
+      '@viktor/config':
+        specifier: workspace:*
+        version: link:../packages/config
+      '@viktor/db':
+        specifier: workspace:*
+        version: link:../packages/db
+      '@viktor/queue':
+        specifier: workspace:*
+        version: link:../packages/queue
+      '@viktor/sandbox':
+        specifier: workspace:*
+        version: link:../packages/sandbox
+      '@viktor/tools':
+        specifier: workspace:*
+        version: link:../packages/tools
+
   packages/agent:
     dependencies:
       '@anthropic-ai/claude-agent-sdk':
