@@ -44,7 +44,7 @@ export type TriggerEvent = {
 };
 
 export async function parseTriggerWebhook(
-  request: { body: string | Buffer; headers: Record<string, string | string[] | undefined> },
+  request: { body: string; headers: Record<string, string | string[] | undefined> },
   secret: string | undefined,
 ): Promise<TriggerEvent> {
   const result = await composio().triggers.parse(request, secret ? { verifySecret: secret } : {});

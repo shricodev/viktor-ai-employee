@@ -12,7 +12,10 @@ export function mountComposioWebhook(router: Router): void {
       let event: Awaited<ReturnType<typeof parseTriggerWebhook>>;
       try {
         event = await parseTriggerWebhook(
-          { body: req.body as Buffer, headers: req.headers },
+          {
+            body: Buffer.isBuffer(req.body) ? req.body.toString("utf8") : "",
+            headers: req.headers,
+          },
           env().COMPOSIO_WEBHOOK_SECRET,
         );
       } catch (err) {
