@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { composio, composioUserId } from "./client.ts";
 
 export type TriggerType = {
@@ -49,8 +50,12 @@ export async function parseTriggerWebhook(
 ): Promise<TriggerEvent> {
   const result = await composio().triggers.parse(request, secret ? { verifySecret: secret } : {});
   const p = result.payload;
+  // The normalized payload's uuid is the trigger instance id, so each delivery is keyed by
+  // its signed webhook id (or the body hash for unsigned deliveries) instead.
+  const header = request.headers["webhook-id"];
+  const webhookId = Array.isArray(header) ? header[0] : header;
   return {
-    eventId: p.uuid,
+    eventId: webhookId || createHash("sha256").update(request.body).digest("hex"),
     triggerId: p.id,
     triggerSlug: p.triggerSlug,
     toolkit: p.toolkitSlug,
