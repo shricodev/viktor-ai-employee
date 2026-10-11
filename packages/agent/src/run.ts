@@ -39,6 +39,8 @@ export type Usage = {
 
 export type RunAgentResult = {
   ok: boolean;
+  /** False when the run ended without a result message (timeout, abort, crash). */
+  completed: boolean;
   text: string;
   errors: string[];
   sessionId?: string;
@@ -152,6 +154,7 @@ export async function runAgent(input: RunAgentInput): Promise<RunAgentResult> {
   if (!result) {
     return {
       ok: false,
+      completed: false,
       text: "",
       errors: [
         abort.signal.aborted ? String(abort.signal.reason) : "agent exited without a result",
@@ -165,6 +168,7 @@ export async function runAgent(input: RunAgentInput): Promise<RunAgentResult> {
 
   return {
     ok: result.subtype === "success" && !result.is_error,
+    completed: true,
     text: result.subtype === "success" ? result.result : "",
     errors: result.subtype === "success" ? [] : [result.subtype, ...result.errors],
     sessionId,
