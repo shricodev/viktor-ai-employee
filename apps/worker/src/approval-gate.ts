@@ -56,7 +56,7 @@ export function approvalGate(ctx: GateContext): CanUseTool {
     if (posted.ts) await setApprovalMessage(approval.id, posted.ts);
     ctx.onWaiting?.(`Waiting for approval: ${decision.actions.map(titleCase).join(", ")}`);
 
-    const outcome = await waitForApproval(
+    let outcome = await waitForApproval(
       approval.id,
       env().APPROVAL_TIMEOUT_MS,
       signal,
@@ -68,7 +68,11 @@ export function approvalGate(ctx: GateContext): CanUseTool {
 
     if (outcome === "expired") {
       const expired = await decideApproval(approval.id, "expired", null);
-      if (expired && posted.ts) {
+      if (!expired) {
+        // A decision landed but its pub/sub message was missed; the database is the source of truth.
+        const row = await getApproval(approval.id);
+        if (row && row.status !== "pending") outcome = row.status;
+      } else if (posted.ts) {
         await slack.chat
           .update({
             channel: ctx.channelId,

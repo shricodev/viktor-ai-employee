@@ -7,17 +7,18 @@ const CHANNEL = "viktor:approvals";
 
 let publisher: Redis | undefined;
 let subscriber: Redis | undefined;
+let subscribed: Promise<unknown> | undefined;
 const waiters = new Map<string, (outcome: ApprovalOutcome) => void>();
 
-function ensureSubscriber(): Redis {
-  if (subscriber) return subscriber;
+function ensureSubscriber(): Promise<unknown> {
+  if (subscribed) return subscribed;
   subscriber = createRedis();
-  void subscriber.subscribe(CHANNEL);
+  subscribed = subscriber.subscribe(CHANNEL);
   subscriber.on("message", (_channel, raw: string) => {
     const { id, outcome } = JSON.parse(raw) as { id: string; outcome: ApprovalOutcome };
     waiters.get(id)?.(outcome);
   });
-  return subscriber;
+  return subscribed;
 }
 
 export async function publishApproval(id: string, outcome: ApprovalOutcome): Promise<void> {
@@ -35,7 +36,8 @@ export function waitForApproval(
   signal: AbortSignal,
   alreadyDecided: () => Promise<ApprovalOutcome | null>,
 ): Promise<ApprovalOutcome> {
-  ensureSubscriber();
+  if (signal.aborted) return Promise.resolve("expired");
+  const ready = ensureSubscriber();
   return new Promise((resolve) => {
     const done = (outcome: ApprovalOutcome) => {
       clearTimeout(timer);
@@ -47,6 +49,10 @@ export function waitForApproval(
     const timer = setTimeout(() => done("expired"), timeoutMs);
     waiters.set(id, done);
     signal.addEventListener("abort", onAbort, { once: true });
-    void alreadyDecided().then((outcome) => outcome && done(outcome));
+    // Only check the database once the subscription is live, so no decision falls in between.
+    ready.then(alreadyDecided).then(
+      (outcome) => outcome && done(outcome),
+      () => undefined,
+    );
   });
 }
