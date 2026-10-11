@@ -6,7 +6,7 @@ import { slackFor } from "@viktor/slack";
 import { embed } from "@viktor/tools";
 import type { Job } from "bullmq";
 import { withinRate } from "../rate-limit.ts";
-import { runTurn } from "../turn.ts";
+import { runLockedTurn } from "../turn.ts";
 
 const MAX_TRIAGE_PER_HOUR = 120;
 const MAX_REPLIES_PER_HOUR = 6;
@@ -69,7 +69,7 @@ export async function processChannelMessage(job: Job<ChannelMessageJob>): Promis
     requestedBy: msg.userId,
     prompt: msg.text,
   });
-  await runTurn({
+  await runLockedTurn({
     run,
     workspace,
     channelId: msg.channelId,

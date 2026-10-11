@@ -12,7 +12,7 @@ import { slackFor } from "@viktor/slack";
 import type { Job } from "bullmq";
 import { tryLock } from "../lock.ts";
 import { postRoot } from "../post-root.ts";
-import { runTurn } from "../turn.ts";
+import { runLockedTurn } from "../turn.ts";
 
 export async function processScheduledRun(job: Job<ScheduledRunJob>): Promise<void> {
   const { scheduleId } = job.data;
@@ -51,7 +51,7 @@ export async function processScheduledRun(job: Job<ScheduledRunJob>): Promise<vo
       requestedBy: schedule.createdBy,
       prompt: schedule.prompt,
     });
-    await runTurn({
+    await runLockedTurn({
       run,
       workspace,
       channelId: schedule.channelId,

@@ -3,13 +3,13 @@ import { getRun, getWorkspace } from "@viktor/db";
 import type { AgentRunJob } from "@viktor/queue";
 import { slackFor } from "@viktor/slack";
 import { DelayedError, type Job } from "bullmq";
-import { tryLock } from "../lock.ts";
+import { threadLockKey, tryLock } from "../lock.ts";
 import { runTurn } from "../turn.ts";
 
 export async function processAgentRun(job: Job<AgentRunJob>, token?: string): Promise<void> {
   const data = job.data;
   const release = await tryLock(
-    `thread:${data.workspaceId}:${data.channelId}:${data.threadTs}`,
+    threadLockKey(data.workspaceId, data.channelId, data.threadTs),
     env().AGENT_TIMEOUT_MS + 5 * 60_000,
   );
   if (!release) {

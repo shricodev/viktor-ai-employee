@@ -12,7 +12,7 @@ import { type DailyCheckinJob, removeDailyCheckin, upsertDailyCheckin } from "@v
 import { slackFor, titleCase } from "@viktor/slack";
 import type { Job } from "bullmq";
 import { postRoot } from "../post-root.ts";
-import { runTurn } from "../turn.ts";
+import { runLockedTurn } from "../turn.ts";
 
 const PROMPT = `Morning check-in. Using the activity summary and anything quick you can check in the team's connected apps, write a short briefing:
 1. What needs attention today (failed runs, pending approvals, follow-ups you know about).
@@ -65,7 +65,7 @@ export async function processDailyCheckin(job: Job<DailyCheckinJob>): Promise<vo
     trigger: "proactive",
     prompt: PROMPT,
   });
-  await runTurn({
+  await runLockedTurn({
     run,
     workspace,
     channelId,

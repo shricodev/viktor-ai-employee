@@ -11,7 +11,7 @@ import { slackFor, titleCase } from "@viktor/slack";
 import type { Job } from "bullmq";
 import { postRoot } from "../post-root.ts";
 import { withinRate } from "../rate-limit.ts";
-import { runTurn } from "../turn.ts";
+import { runLockedTurn } from "../turn.ts";
 
 const MAX_EVENTS_PER_HOUR = 30;
 const MAX_PAYLOAD_CHARS = 20_000;
@@ -50,7 +50,7 @@ export async function processTriggerEvent(job: Job<TriggerEventJob>): Promise<vo
     prompt: sub.instruction,
   });
 
-  await runTurn({
+  await runLockedTurn({
     run,
     workspace,
     channelId: sub.channelId,

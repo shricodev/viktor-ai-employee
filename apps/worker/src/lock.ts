@@ -16,3 +16,7 @@ export async function tryLock(key: string, ttlMs: number): Promise<(() => Promis
     await redis!.eval(RELEASE, 1, `lock:${key}`, token);
   };
 }
+
+export function threadLockKey(workspaceId: string, channelId: string, threadTs: string): string {
+  return `thread:${workspaceId}:${channelId}:${threadTs}`;
+}
