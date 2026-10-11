@@ -46,9 +46,11 @@ export function registerApprovalHandlers(app: App): void {
       }
 
       if (kind === "always") {
-        const current = new Set(workspace.settings.autoApprovedTools ?? []);
-        for (const a of approval.actions) current.add(a);
-        await updateSettings(workspace.id, { autoApprovedTools: [...current] });
+        await updateSettings(workspace.id, (current) => ({
+          autoApprovedTools: [
+            ...new Set([...(current.autoApprovedTools ?? []), ...approval.actions]),
+          ],
+        }));
         invalidateSettings(workspace.id);
       }
 

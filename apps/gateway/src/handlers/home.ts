@@ -206,9 +206,9 @@ export function registerHomeHandlers(app: App): void {
     await args.ack();
     const slug = actionValue(args.body);
     await adminAction(args, async (ws) => {
-      await updateSettings(ws.id, {
-        autoApprovedTools: (ws.settings.autoApprovedTools ?? []).filter((s) => s !== slug),
-      });
+      await updateSettings(ws.id, (current) => ({
+        autoApprovedTools: (current.autoApprovedTools ?? []).filter((s) => s !== slug),
+      }));
     });
   });
 
