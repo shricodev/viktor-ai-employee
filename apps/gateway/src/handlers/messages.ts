@@ -15,6 +15,8 @@ async function acknowledge(app: App, token: string | undefined, channel: string,
 export function registerMessageHandlers(app: App): void {
   app.event("app_mention", async ({ event, context }) => {
     if (!context.teamId || !context.botUserId || !event.user) return;
+    // Other bots mentioning Viktor could otherwise start reply loops.
+    if ("bot_id" in event && event.bot_id) return;
     await acknowledge(app, context.botToken, event.channel, event.ts);
     await dispatchRun({
       workspaceId: context.teamId,
@@ -29,7 +31,13 @@ export function registerMessageHandlers(app: App): void {
   });
 
   app.message(async ({ message, context }) => {
-    if (message.subtype && message.subtype !== "file_share") return;
+    if (
+      message.subtype &&
+      message.subtype !== "file_share" &&
+      message.subtype !== "thread_broadcast"
+    ) {
+      return;
+    }
     if (!("user" in message) || !message.user || message.user === context.botUserId) return;
     if (!context.teamId || !context.botUserId) return;
     if ("bot_id" in message && message.bot_id) return;
