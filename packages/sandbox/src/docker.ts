@@ -11,8 +11,14 @@ const starting = new Map<string, Promise<Docker.Container>>();
 const MAX_OUTPUT_CHARS = 30_000;
 export const MAX_FILE_BYTES = 50 * 1024 * 1024;
 
-function isNotFound(err: unknown): boolean {
-  return (err as { statusCode?: number })?.statusCode === 404;
+const statusOf = (err: unknown) => (err as { statusCode?: number })?.statusCode;
+const isNotFound = (err: unknown) => statusOf(err) === 404;
+
+async function start(container: Docker.Container): Promise<void> {
+  // 304 means another worker started it first.
+  await container.start().catch((err) => {
+    if (statusOf(err) !== 304) throw err;
+  });
 }
 
 async function create(workspaceId: string): Promise<Docker.Container> {
@@ -43,7 +49,7 @@ async function create(workspaceId: string): Promise<Docker.Container> {
       RestartPolicy: { Name: "no" },
     },
   });
-  await container.start();
+  await start(container);
   logger.info({ workspaceId, name }, "sandbox created");
   return container;
 }
@@ -52,11 +58,16 @@ async function ensureRunning(workspaceId: string): Promise<Docker.Container> {
   const container = docker.getContainer(containerName(workspaceId));
   try {
     const info = await container.inspect();
-    if (!info.State.Running) await container.start();
+    if (!info.State.Running) await start(container);
     return container;
   } catch (err) {
     if (!isNotFound(err)) throw err;
-    return create(workspaceId);
+    return create(workspaceId).catch(async (createErr) => {
+      // 409: another worker created it between our inspect and create.
+      if (statusOf(createErr) !== 409) throw createErr;
+      await start(container);
+      return container;
+    });
   }
 }
 
@@ -80,7 +91,7 @@ export async function execInSandbox(
   const container = await ensureSandbox(workspaceId);
   const timeoutSec = Math.min(Math.max(opts.timeoutSec ?? 120, 1), 900);
   const exec = await container.exec({
-    Cmd: ["timeout", "-k", "5", String(timeoutSec), "bash", "-lc", command],
+    Cmd: ["timeout", "-k", "5", String(timeoutSec), "bash", "-c", command],
     WorkingDir: resolveWorkspacePath(opts.cwd ?? "."),
     AttachStdout: true,
     AttachStderr: true,
@@ -134,7 +145,11 @@ export async function readSandboxFile(
   return unpackFirstFile(stream, maxBytes);
 }
 
-/** Stops containers that have not been used recently. Their volumes are kept. */
+/**
+ * Stops sandboxes that are idle: unused by this worker recently and running nothing but their
+ * init process, so a command started by another worker replica is never killed. Volumes are
+ * kept and a stopped sandbox restarts transparently on next use.
+ */
 export async function reapIdleSandboxes(idleMs: number): Promise<number> {
   const containers = await docker.listContainers({ filters: { label: ["viktor.sandbox=1"] } });
   let stopped = 0;
@@ -143,8 +158,10 @@ export async function reapIdleSandboxes(idleMs: number): Promise<number> {
     if (!workspaceId) continue;
     const used = lastUsed.get(workspaceId) ?? 0;
     if (Date.now() - used < idleMs) continue;
-    await docker
-      .getContainer(info.Id)
+    const container = docker.getContainer(info.Id);
+    const top = await container.top().catch(() => null);
+    if (!top || (top.Processes?.length ?? 0) > 1) continue;
+    await container
       .stop({ t: 5 })
       .then(() => stopped++)
       .catch((err) => logger.warn({ err, workspaceId }, "failed to stop idle sandbox"));

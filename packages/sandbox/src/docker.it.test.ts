@@ -1,6 +1,12 @@
 import { randomBytes } from "node:crypto";
 import { afterAll, describe, expect, it } from "vitest";
-import { destroySandbox, execInSandbox, readSandboxFile, writeSandboxFile } from "./docker.ts";
+import {
+  destroySandbox,
+  execInSandbox,
+  readSandboxFile,
+  reapIdleSandboxes,
+  writeSandboxFile,
+} from "./docker.ts";
 
 const enabled = process.env.SANDBOX_IT === "1";
 const ws = `TEST${randomBytes(3).toString("hex")}`;
@@ -31,6 +37,23 @@ describe.skipIf(!enabled)(
     it("cannot write outside the workspace or see host secrets", async () => {
       const res = await execInSandbox(ws, "touch /etc/x; echo $?; env | grep -c ANTHROPIC || true");
       expect(res.stdout.trim().split("\n")).toEqual(["1", "0"]);
+    });
+
+    it("keeps user-installed binaries on PATH", async () => {
+      await execInSandbox(
+        ws,
+        "mkdir -p .local/bin && printf '#!/bin/sh\necho hi' > .local/bin/mytool && chmod +x .local/bin/mytool",
+      );
+      expect((await execInSandbox(ws, "mytool")).stdout.trim()).toBe("hi");
+    });
+
+    it("never reaps a sandbox that is running a command, and restarts after reaping", async () => {
+      const busy = execInSandbox(ws, "sleep 3; echo done", { timeoutSec: 10 });
+      await new Promise((r) => setTimeout(r, 1000));
+      await reapIdleSandboxes(0);
+      expect((await busy).stdout.trim()).toBe("done");
+      expect(await reapIdleSandboxes(0)).toBeGreaterThanOrEqual(1);
+      expect((await execInSandbox(ws, "cat data/in.csv")).stdout).toContain("1,2");
     });
 
     it("enforces timeouts", async () => {
