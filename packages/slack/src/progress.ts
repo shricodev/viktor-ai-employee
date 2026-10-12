@@ -15,6 +15,7 @@ export class ProgressMessage {
   private lastUpdate = 0;
   private pending?: NodeJS.Timeout;
   private finished = false;
+  private inflight: Promise<unknown> = Promise.resolve();
 
   private readonly client: WebClient;
   private readonly channel: string;
@@ -45,6 +46,8 @@ export class ProgressMessage {
   async finish(text: string, extraBlocks: KnownBlock[] = []): Promise<void> {
     this.finished = true;
     clearTimeout(this.pending);
+    // A progress edit already on the wire must land before the answer, never after it.
+    await this.inflight;
     const [first = "Done.", ...rest] = chunkText(text);
     const firstBlocks = [...markdownBlocks(first), ...(rest.length ? [] : extraBlocks)];
     if (this.ts) {
@@ -89,7 +92,7 @@ export class ProgressMessage {
     if (!this.ts || this.finished) return;
     this.lastUpdate = Date.now();
     const label = this.steps.at(-1) ?? "Working on it…";
-    await this.client.chat
+    this.inflight = this.client.chat
       .update({
         channel: this.channel,
         ts: this.ts,
@@ -97,6 +100,7 @@ export class ProgressMessage {
         blocks: this.progressBlocks(label),
       })
       .catch((err) => logger.warn({ err }, "progress update failed"));
+    await this.inflight;
   }
 
   private progressBlocks(current: string): KnownBlock[] {
