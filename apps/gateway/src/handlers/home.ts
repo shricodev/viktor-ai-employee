@@ -121,6 +121,10 @@ export function registerHomeHandlers(app: App): void {
     const budget = Number(values.budget?.value?.value ?? "0");
     const timezone = (values.timezone?.value?.value ?? "").trim();
     const persona = (values.persona?.value?.value ?? "").trim();
+    if (!Number.isFinite(budget) || budget < 0) {
+      await ack({ response_action: "errors", errors: { budget: "Enter a positive number, or 0" } });
+      return;
+    }
     if (!isValidTimezone(timezone)) {
       await ack({ response_action: "errors", errors: { timezone: "Unknown timezone" } });
       return;
