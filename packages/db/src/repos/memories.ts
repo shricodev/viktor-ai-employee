@@ -78,7 +78,8 @@ export async function searchMemories(input: {
 }): Promise<MemoryHit[]> {
   const limit = input.limit ?? 8;
   const db = getDb();
-  const tsquery = sql`websearch_to_tsquery('english', ${input.query})`;
+  // Match any term, not all of them: a question often touches several separate memories.
+  const tsquery = sql`replace(plainto_tsquery('english', ${input.query})::text, ' & ', ' | ')::tsquery`;
 
   const lexical = db
     .select(columns)
