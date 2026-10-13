@@ -39,6 +39,10 @@ const context = (text: string): KnownBlock => ({
 });
 const divider: KnownBlock = { type: "divider" };
 
+function where(channelId: string): string {
+  return channelId.startsWith("D") ? "a DM" : `<#${channelId}>`;
+}
+
 function clip(text: string, max: number): string {
   return text.length > max ? `${text.slice(0, max - 1)}…` : text;
 }
@@ -157,7 +161,7 @@ export function buildHomeView(d: HomeData): View {
       type: "section",
       text: {
         type: "mrkdwn",
-        text: `*${clip(s.name, 80)}* · \`${s.cron}\` · <#${s.channelId}>\n${status}`,
+        text: `*${clip(s.name, 80)}* · \`${s.cron}\` · ${where(s.channelId)}\n${status}`,
       },
       ...(d.isAdmin
         ? {
@@ -183,7 +187,7 @@ export function buildHomeView(d: HomeData): View {
   for (const t of d.triggers.slice(0, LIST_LIMIT)) {
     blocks.push({
       type: "section",
-      text: { type: "mrkdwn", text: `*${titleCase(t.triggerSlug)}* → <#${t.channelId}>` },
+      text: { type: "mrkdwn", text: `*${titleCase(t.triggerSlug)}* → ${where(t.channelId)}` },
       ...(d.isAdmin ? { accessory: button("Remove", "home_trigger_delete", t.id) } : {}),
     });
   }
