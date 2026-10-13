@@ -28,6 +28,16 @@ describe("plainPreview", () => {
     expect(plainPreview("**Done!** See [the report](https://x.y)")).toBe("Done! See the report");
   });
 
+  it("keeps Slack mentions and escapes stray angle brackets", () => {
+    expect(plainPreview("Posting in <#C123> as `<sender> — <subject>`")).toBe(
+      "Posting in <#C123> as &lt;sender&gt; — &lt;subject&gt;",
+    );
+  });
+
+  it("drops heading and quote markers but keeps hashtags", () => {
+    expect(plainPreview("## Summary\n> quoted\nTicket #42")).toBe("Summary quoted Ticket #42");
+  });
+
   it("truncates", () => {
     expect(plainPreview("word ".repeat(100), 20)).toHaveLength(20);
   });

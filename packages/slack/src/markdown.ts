@@ -23,13 +23,22 @@ export function markdownBlocks(text: string): KnownBlock[] {
   return [{ type: "markdown", text } as KnownBlock];
 }
 
+const SLACK_ENTITY = /<(?:[@#!][^>\s]+|(?:https?|mailto):[^>\s]+)>/g;
+
 /** Plain-text fallback for notifications, where Slack does not render Markdown. */
 export function plainPreview(text: string, max = 280): string {
+  const entities: string[] = [];
   const flat = text
     .replace(/```[\s\S]*?```/g, "[code]")
-    .replace(/[*_`#>]/g, "")
     .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+    .replace(SLACK_ENTITY, (m) => `\0${entities.push(m) - 1}\0`)
+    .replace(/^\s*(?:#{1,6}|>)\s*/gm, "")
+    .replace(/[*_`]/g, "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
     .replace(/\s+/g, " ")
     .trim();
-  return flat.length > max ? `${flat.slice(0, max - 1)}…` : flat;
+  const cut = flat.length > max ? `${flat.slice(0, max - 1).replace(/\0\d*$/, "")}…` : flat;
+  return cut.replace(/\0(\d+)\0/g, (_, i: string) => entities[Number(i)]!);
 }
