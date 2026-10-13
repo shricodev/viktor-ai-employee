@@ -17,7 +17,7 @@ import {
   type Workspace,
 } from "@viktor/db";
 import type { RunTrigger, SlackFileRef } from "@viktor/queue";
-import { connectCard, describeTool, ProgressMessage, slackFor } from "@viktor/slack";
+import { connectCard, describeTool, ProgressMessage, slackFor, titleCase } from "@viktor/slack";
 import { createViktorServer, importSlackFiles, VIKTOR_SERVER } from "@viktor/tools";
 import { approvalGate } from "./approval-gate.ts";
 import { workspaceContext } from "./context.ts";
@@ -132,7 +132,7 @@ export async function runTurn(turn: Turn): Promise<void> {
               await slack.chat.postMessage({
                 channel: turn.channelId,
                 thread_ts: turn.threadTs,
-                text: `Connect ${links.map((l) => l.toolkit).join(", ")} to continue`,
+                text: `Connect ${links.map((l) => titleCase(l.toolkit)).join(", ")} to continue`,
                 blocks: connectCard(links),
               });
               return {
