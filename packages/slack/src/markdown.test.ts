@@ -29,8 +29,8 @@ describe("plainPreview", () => {
   });
 
   it("keeps Slack mentions and escapes stray angle brackets", () => {
-    expect(plainPreview("Posting in <#C123> as `<sender> — <subject>`")).toBe(
-      "Posting in <#C123> as &lt;sender&gt; — &lt;subject&gt;",
+    expect(plainPreview("Posting in <#C123> as `<sender>: <subject>`")).toBe(
+      "Posting in <#C123> as &lt;sender&gt;: &lt;subject&gt;",
     );
   });
 

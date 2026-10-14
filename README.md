@@ -1,6 +1,6 @@
 # Viktor
 
-**An open-source AI employee that lives in Slack.** Mention it in a channel or DM it real work — "pull last month's Stripe revenue and send me a PDF with charts", "every Monday post the PRs waiting on review", "when a new lead lands in HubSpot, research the company" — and it does the work end to end using your team's apps and its own computer.
+**An open-source AI employee that lives in Slack.** Mention it in a channel or DM it real work, like "pull last month's Stripe revenue and send me a PDF with charts", "every Monday post the PRs waiting on review" or "when a new lead lands in HubSpot, research the company", and it does the work end to end using your team's apps and its own computer.
 
 Built on the [Claude Agent SDK](https://code.claude.com/docs/en/agent-sdk), with every third-party integration (Gmail, Google Sheets & Docs, Outlook, Excel, Word, GitHub, Linear, Notion, HubSpot, Salesforce, Stripe and 1,000+ more) powered by [Composio](https://composio.dev).
 
@@ -96,7 +96,7 @@ Every option is documented in [`.env.example`](.env.example). The ones you'll mo
 | `DEFAULT_MONTHLY_BUDGET_USD` | `100` | Per-workspace monthly cap (editable in App Home; `0` = unlimited) |
 | `APPROVAL_TIMEOUT_MS` | 15 min | How long a gated action waits for a human |
 | `SANDBOX_MEMORY_MB` / `SANDBOX_CPUS` | 2048 / 1 | Sandbox resource limits |
-| `VOYAGE_API_KEY` | – | Enables semantic memory search |
+| `VOYAGE_API_KEY` | none | Enables semantic memory search |
 
 ## Security model
 
