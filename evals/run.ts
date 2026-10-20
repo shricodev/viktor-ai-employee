@@ -68,7 +68,11 @@ for (const scenario of scenarios.filter((s) => !only || s.name.includes(only))) 
   console.log(
     `${problem ? "✗" : "✓"} ${scenario.name}  (${secs}s, $${result.totalCostUsd.toFixed(3)}, ${t.tools.length} tool calls)`,
   );
-  if (problem) console.log(`    ${problem}`);
+  if (problem) {
+    console.log(`    ${problem}`);
+    console.log(`    tools: ${t.tools.join(", ") || "none"}`);
+    console.log(`    reply: ${t.text.replace(/\s+/g, " ").slice(0, 400)}`);
+  }
 }
 
 const wiped = await wipeWorkspaceData(WORKSPACE_ID);

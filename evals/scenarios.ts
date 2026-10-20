@@ -41,8 +41,7 @@ export const scenarios: Scenario[] = [
   },
   {
     name: "creates schedules for recurring requests",
-    prompt:
-      "Every Monday at 9am, post a summary of last week's GitHub pull requests in this channel.",
+    prompt: "Every weekday at 9am, post a short productivity tip in this channel.",
     check: (t) => (called(t, "__schedule_create") ? null : "expected schedule_create"),
   },
   {
